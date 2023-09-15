@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 ######################## READING THE DATAFILE ###########################
 ## The first column of the data file will be read as Phi_1, 2nd- Phi, 3rd phi_2, 4th - x, 5th - y, 6and 7th as CI (confidance index)
-path =  r"C:\\Users\\mme\Desktop\BTech FYP _ Tamaghna\Data\\First Data set\\HR_all.xlsm"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
+path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\HR.xlsx"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
 #print(path)
 df = pd.read_excel(path)
 # print(df)
@@ -127,8 +127,10 @@ if __name__ == "__main__":
                                 
 
                   stored_energy_values[x,y,0] = (stored_energy_values[x,y,0] - stored_energy(theta(np.matmul(G[x,y,0],G[x,y,1]))))/8  
-                  f.write("%s\t%s\t%s \n"%(x*stepsize,y*stepsize,stored_energy_values[x,y,0]))                
-
+                                  
+        for x in range(0,r+1):
+             for y in range(0,c+1):
+                  f.write("%s\t%s\t%s \n"%(x*stepsize,y*stepsize,stored_energy_values[x,y,0]))
 ######### PLOTTING THE IMAGE ###########################
 plt.matshow(stored_energy_values)
 plt.show()

@@ -1,17 +1,12 @@
-########################### IMPORTS ######################################
-
-import pandas as pd
-import os
 import numpy as np
-import csv
-import matplotlib.pyplot as plt
+import pandas as pd
 
-######################## READING THE DATAFILE ###########################
+
 ## The first column of the data file will be read as Phi_1, 2nd- Phi, 3rd phi_2, 4th - x, 5th - y, 6and 7th as CI (confidance index)
 path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\HR_complete.xlsx"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
 #print(path)
 df = pd.read_excel(path)
-#print(df)
+# print(df)
 df = df.to_numpy()    ##We use numpy arrays since they are easier to manipulate
 
 stepsize = df[1,3] - df[0,3]
@@ -35,22 +30,8 @@ for i in df:
     s[int(i[3])][int(i[4])][1] = i[1]
     s[int(i[3])][int(i[4])][2] = i[2]
     s[int(i[3])][int(i[4])][3] = i[6]
-    
 
 G = np.zeros((r + 1, c + 1, 2, 3, 3)) ## Like above in a r+1 x c+1 matrix now we are storing g and g^-1. We do this after caculating g and g^-1
-
-IQ = np.zeros((r+1,c+1,1))  ## Image quality
-
-max = 0
-min = np.inf
-
-for i in df:
-    IQ[int(i[3])][int(i[4])][0] = i[5]
-    if i[5] > max : max = i[5]
-    if i[5] < min : min = i[5]
-
-for i in df:
-    IQ[int(i[3])][int(i[4])][0] = 100*(i[5] - min)/(max-min)
 
 ####################### FUNCTIONS #######################################
 
@@ -101,31 +82,18 @@ def theta(del_g): ## Takes del_g (a 3x3 numpy array) and gives back the minimum 
      
     return min_value
 
-def stored_energy(theta):  #Read schokely equation
-    
-    s = np.degrees(theta)
-    
-    if s < 0.1:
-        return 0
 
-    if s > theta_m:
-        return 10/2
-    else:
-        return (10*(s/theta_m)*(1-np.log(s/theta_m)))/2
-
-
-### SETTING UP G ###################
+###########Setting up G ##########################
 
 for x in range(0,r+1):
     for y in range(0,c+1):
         G[x,y]= [g(s[x,y,0] , s[x,y,1] , s[x,y,0]), np.linalg.inv(g(s[x,y,0] , s[x,y,1] , s[x,y,0]))]
 
-###### Main #########
+
 
 if __name__ == "__main__":
-        f = open("energy_misorientation_IQ.txt", "w" )
-        f.write("X\tY\ttheta\tIQ\tSE\n")
-        stored_energy_values = np.zeros((r + 1, c + 1, 1))
+        f = open("average_misorientation_angle.txt", "w" )
+        f.write("X\tY\ttheta \n")
         average_misorientation = np.zeros((r + 1, c + 1, 1))
 
         for x in range(1,r):
@@ -133,19 +101,13 @@ if __name__ == "__main__":
                   for i in range(-1,2,1):
                         for j in range(-1,2,1):
                                 if s[x,y,3] < 0.1 or s[x+i,y+j,3] < 0.1:
-                                    stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + 0
                                     average_misorientation[x,y,0] = average_misorientation[x,y,0] + 0
                                 else:
-                                     stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + stored_energy(theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
                                      average_misorientation[x,y,0] = average_misorientation[x,y,0] + (theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
                                 
 
-                  stored_energy_values[x,y,0] = (stored_energy_values[x,y,0] - stored_energy(theta(np.matmul(G[x,y,0],G[x,y,1]))))/8 
-                  average_misorientation[x,y,0] = (average_misorientation[x,y,0] - (theta(np.matmul(G[x,y,0],G[x,y,1]))))/8   
+                  average_misorientation[x,y,0] = (average_misorientation[x,y,0] - (theta(np.matmul(G[x,y,0],G[x,y,1]))))/8  
                                   
         for x in range(0,r+1):
              for y in range(0,c+1):
-                  f.write("%s\t%s\t%s\t%s\t%s\n"%(x*stepsize,y*stepsize,average_misorientation[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
-######### PLOTTING THE IMAGE ###########################
-plt.matshow(stored_energy_values)
-plt.show()
+                  f.write("%s\t%s\t%s \n"%(x*stepsize,y*stepsize,np.degrees(average_misorientation[x,y,0])))

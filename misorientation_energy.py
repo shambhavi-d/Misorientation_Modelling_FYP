@@ -124,28 +124,62 @@ for x in range(0,r+1):
 
 if __name__ == "__main__":
         f = open("energy_misorientation_IQ.txt", "w" )
-        f.write("X\tY\ttheta\tIQ\tSE\n")
+        f.write("X\tY\ttheta\tKAM\tIQ\tSE\n")
         stored_energy_values = np.zeros((r + 1, c + 1, 1))
         average_misorientation = np.zeros((r + 1, c + 1, 1))
+        kam = np.zeros((r + 1, c + 1, 1))
 
         for x in range(1,r):
-             for y in range(1,c,1):
-                  for i in range(-1,2,1):
-                        for j in range(-1,2,1):
-                                if s[x,y,3] < 0.1 or s[x+i,y+j,3] < 0.1:
-                                    stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + 0
-                                    average_misorientation[x,y,0] = average_misorientation[x,y,0] + 0
-                                else:
-                                     stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + stored_energy(theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
-                                     average_misorientation[x,y,0] = average_misorientation[x,y,0] + (theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
+            for y in range(1,c,1):
+                kam_i = 0
+                for i in range(-1,2,1):
+                    for j in range(-1,2,1):
+                        if s[x,y,3] < 0.1 or s[x+i,y+j,3] < 0.1:
+                            stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + 0
+                            average_misorientation[x,y,0] = average_misorientation[x,y,0] + 0
+                            kam[x,y,0] = kam[x,y,0] + 0
+                                
+                        else:
+                            stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + stored_energy(theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
+                            average_misorientation[x,y,0] = average_misorientation[x,y,0] + (theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
+                            if theta(np.matmul(G[x,y,0],G[x+i,y+j,1])) < theta_m:
+                                kam[x,y,0] = kam[x,y,0] + (theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
+                                kam_i+=1
                                 
 
-                  stored_energy_values[x,y,0] = (stored_energy_values[x,y,0] - stored_energy(theta(np.matmul(G[x,y,0],G[x,y,1]))))/8 
-                  average_misorientation[x,y,0] = (average_misorientation[x,y,0] - (theta(np.matmul(G[x,y,0],G[x,y,1]))))/8   
-                                  
+                stored_energy_values[x,y,0] = (stored_energy_values[x,y,0] - stored_energy(theta(np.matmul(G[x,y,0],G[x,y,1]))))/8 
+                average_misorientation[x,y,0] = (average_misorientation[x,y,0] - (theta(np.matmul(G[x,y,0],G[x,y,1]))))/8   
+                
+                if kam_i > 0:
+                    kam[x,y,0]= kam[x,y,0]/kam_i  
+                else: kam[x,y,0] = 0
         for x in range(0,r+1):
              for y in range(0,c+1):
-                  f.write("%s\t%s\t%s\t%s\t%s\n"%(x*stepsize,y*stepsize,average_misorientation[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
+                  f.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(x*stepsize,y*stepsize,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
 ######### PLOTTING THE IMAGE ###########################
-plt.matshow(stored_energy_values)
+
+###################################  To make more plots copy this code and paste below ######################
+fig, ax = plt.subplots()
+im = ax.imshow(stored_energy_values, cmap='viridis')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html
+cbar = plt.colorbar(im, ax=ax)
+cbar.set_label('Stored Energy')           # Label
+
+#Title can be added
+#plt.title('matplotlib.pyplot.imshow() Stored energy', 
+#                                    fontweight ="bold")  
+
+#############################################################################################################
+
+
+fig, ax = plt.subplots()
+im = ax.imshow(average_misorientation, cmap='plasma')
+cbar = plt.colorbar(im, ax=ax)
+cbar.set_label('Average Misorientation')
+
+
+fig, ax = plt.subplots()
+im = ax.imshow(kam, cmap='seismic')
+cbar = plt.colorbar(im, ax=ax)
+cbar.set_label('KAM')
+
 plt.show()

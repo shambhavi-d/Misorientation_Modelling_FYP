@@ -14,10 +14,20 @@ df = pd.read_excel(path)
 #print(df)
 df = df.to_numpy()    ##We use numpy arrays since they are easier to manipulate
 
-stepsize = df[1,3] - df[0,3]
+##Calculating step size
+for i in range(0,len(df[:,3])):
+    if df[i+1,3] - df[i,3] != 0:
+        stepsize_x = df[1,3] - df[0,3]
+        break
+    
+for i in range(0,len(df[:,4])):
+    if df[i+1,4] - df[i,4] != 0:
+        stepsize_y = df[1,3] - df[0,3]
+        break
+print(stepsize_x,stepsize_y)
 
-df[:,3] = (df[:, 3] / (stepsize)).astype(int)
-df[:,4] = (df[:, 4] / (stepsize)).astype(int)
+df[:,3] = (df[:, 3] / (stepsize_x)).astype(int)
+df[:,4] = (df[:, 4] / (stepsize_y)).astype(int)
 
 r,c = int(np.max(df[:,3])),int(np.max(df[:,4])) ##Dimensions of the datafile for furthur use
 
@@ -155,31 +165,25 @@ if __name__ == "__main__":
                 else: kam[x,y,0] = 0
         for x in range(0,r+1):
              for y in range(0,c+1):
-                  f.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(x*stepsize,y*stepsize,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
-######### PLOTTING THE IMAGE ###########################
+                  f.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(x*stepsize_x,y*stepsize_y,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
+        #### PLOTTING ####
+        fig, ax = plt.subplots()
+        im = ax.imshow(stored_energy_values, cmap='viridis')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('Stored Energy')           # Label #Title can be added #plt.title('matplotlib.pyplot.imshow() Stored energy', fontweight ="bold")  
 
-###################################  To make more plots copy this code and paste below ######################
-fig, ax = plt.subplots()
-im = ax.imshow(stored_energy_values, cmap='viridis')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html
-cbar = plt.colorbar(im, ax=ax)
-cbar.set_label('Stored Energy')           # Label
-
-#Title can be added
-#plt.title('matplotlib.pyplot.imshow() Stored energy', 
-#                                    fontweight ="bold")  
-
-#############################################################################################################
+        #######################################################################################################
 
 
-fig, ax = plt.subplots()
-im = ax.imshow(average_misorientation, cmap='plasma')
-cbar = plt.colorbar(im, ax=ax)
-cbar.set_label('Average Misorientation')
+        fig, ax = plt.subplots()
+        im = ax.imshow(average_misorientation, cmap='plasma')
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('Average Misorientation')
 
 
-fig, ax = plt.subplots()
-im = ax.imshow(kam, cmap='seismic')
-cbar = plt.colorbar(im, ax=ax)
-cbar.set_label('KAM')
+        fig, ax = plt.subplots()
+        im = ax.imshow(kam, cmap='seismic')
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('KAM')
 
-plt.show()
+        plt.show()

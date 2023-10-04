@@ -24,7 +24,7 @@ for i in range(0,len(df[:,4])):
     if df[i+1,4] - df[i,4] != 0:
         stepsize_y = df[1,3] - df[0,3]
         break
-print(stepsize_x,stepsize_y)
+
 
 df[:,3] = (df[:, 3] / (stepsize_x)).astype(int)
 df[:,4] = (df[:, 4] / (stepsize_y)).astype(int)
@@ -41,7 +41,7 @@ s = np.zeros((r+1,c+1,4))  ## np.zeros makes a nested list (which can be thought
 
 for i in df:
     # print(i)
-    s[int(i[3])][int(i[4])][0] = i[0]
+    s[int(i[3])][int(i[4])][0] = i[0] 
     s[int(i[3])][int(i[4])][1] = i[1]
     s[int(i[3])][int(i[4])][2] = i[2]
     s[int(i[3])][int(i[4])][3] = i[6]

@@ -1,2 +1,2 @@
-Avg Grain X = 64.84 
-Avg Grain Y = 65.4 
+Avg Grain X = 0.32947916666666666 
+Avg Grain Y = 0.3435416666666667 

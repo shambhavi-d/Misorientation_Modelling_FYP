@@ -171,7 +171,7 @@ if __name__ == "__main__":
         im = ax.imshow(stored_energy_values, cmap='viridis')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('Stored Energy')           # Label #Title can be added #plt.title('matplotlib.pyplot.imshow() Stored energy', fontweight ="bold")  
-
+        plt.savefig("stored_energy", dpi=1200)
         #######################################################################################################
 
 
@@ -179,11 +179,11 @@ if __name__ == "__main__":
         im = ax.imshow(average_misorientation, cmap='plasma')
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('Average Misorientation')
-
+        plt.savefig("Misorientation", dpi=1200)
 
         fig, ax = plt.subplots()
         im = ax.imshow(kam, cmap='seismic')
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('KAM')
-
+        plt.savefig("KAM", dpi=1200)
         plt.show()

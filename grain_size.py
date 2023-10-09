@@ -19,7 +19,7 @@ def average_grain_x(n1):
                 i+=1
         subgrains.append(i)
         
-    return sum(subgrains)/len(subgrains)
+    return sum(subgrains)/(n1*main.r*main.stepsize_x)
     
 def average_grain_y(n2):
     random_x = random.sample(range(0,main.r),n2)
@@ -33,7 +33,7 @@ def average_grain_y(n2):
                 i+=1
         subgrains.append(i)
         
-    return sum(subgrains)/len(subgrains)
+    return sum(subgrains)/(n2*main.c*main.stepsize_y)
 
 if __name__ == "__main__":
     f = open("grain_size.txt", "w" )

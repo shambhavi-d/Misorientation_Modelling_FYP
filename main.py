@@ -17,12 +17,12 @@ df = df.to_numpy()    ##We use numpy arrays since they are easier to manipulate
 ##Calculating step size
 for i in range(0,len(df[:,3])):
     if df[i+1,3] - df[i,3] != 0:
-        stepsize_x = df[1,3] - df[0,3]
+        stepsize_x = df[i+1,3] - df[i,3]
         break
     
 for i in range(0,len(df[:,4])):
     if df[i+1,4] - df[i,4] != 0:
-        stepsize_y = df[1,3] - df[0,3]
+        stepsize_y = df[i+1,4] - df[i,4]
         break
 
 
@@ -34,6 +34,7 @@ r,c = int(np.max(df[:,3])),int(np.max(df[:,4])) ##Dimensions of the datafile for
 ######################## GLOBAL VARIABLES ###############################
 
 theta_m = 15 # 15 degree is the critical value for misorientation
+sigma_m = 10 
 
 s = np.zeros((r+1,c+1,4))  ## np.zeros makes a nested list (which can be thought of a a matrix of r+1 x c+1 storing 3 values). 
                            ## We are going to store the angles in this such that if i call S[x][y][0] we'll get phi_1 for x,y co-ordinates
@@ -121,14 +122,14 @@ def stored_energy(theta):  #Read schokely equation
     if s > theta_m:
         return 10/2
     else:
-        return (10*(s/theta_m)*(1-np.log(s/theta_m)))/2
+        return (sigma_m*(s/theta_m)*(1-np.log(s/theta_m)))/2
 
 
 ### SETTING UP G ###################
 
 for x in range(0,r+1):
     for y in range(0,c+1):
-        G[x,y]= [g(s[x,y,0] , s[x,y,1] , s[x,y,0]), np.linalg.inv(g(s[x,y,0] , s[x,y,1] , s[x,y,0]))]
+        G[x,y]= [g(s[x,y,0] , s[x,y,1] , s[x,y,2]), np.linalg.inv(g(s[x,y,0] , s[x,y,1] , s[x,y,2]))]
 
 ###### Main #########
 
@@ -152,7 +153,7 @@ if __name__ == "__main__":
                         else:
                             stored_energy_values[x,y,0] = stored_energy_values[x,y,0] + stored_energy(theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
                             average_misorientation[x,y,0] = average_misorientation[x,y,0] + (theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
-                            if theta(np.matmul(G[x,y,0],G[x+i,y+j,1])) < theta_m:
+                            if np.degrees(theta(np.matmul(G[x,y,0],G[x+i,y+j,1]))) < theta_m:
                                 kam[x,y,0] = kam[x,y,0] + (theta(np.matmul(G[x,y,0],G[x+i,y+j,1])))
                                 kam_i+=1
                                 

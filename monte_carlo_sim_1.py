@@ -13,7 +13,9 @@ df = pd.read_csv(path,sep='\t')
 
 df = df.to_numpy()
 
-number_of_grains = 1
+color =["red","blue","cyan","yellow","purple","pink","orange","green","brown","grey","black"]
+
+number_of_grains = 5
 
 M_m = 10
 
@@ -130,6 +132,17 @@ def state_change(grain,coords_px):
     else: pass    
 
 
+def print_euler_angles():
+    with open("Sim1_results.txt", "w") as f:
+        f.write("X\tY\tphi1\tphi\tphi2\n")
+
+    for x in range(0, r+1):
+        for y in range(0, c+1):
+            with open("Sim1_results.txt", "a") as f:
+                f.write("%s\t%s\t%s\t%s\t%s\n"%(x*stepsize_x, y*stepsize_y, EA[x, y, 0], EA[x, y, 1], EA[x, y, 2]))
+
+
+
 #################################################################################################################################################################
 # def update_display():
 #     canvas.delete("all")
@@ -164,30 +177,36 @@ grains = []
 
 
 
-def monte_carlo_step(n=1):
+def monte_carlo_step(n=3):
     m=0
     while m < n:
+        
         for i in grains:
+            print("outerloop fault")
             for j in i.GB:
+                print("innerfault")
                 for x in [-1,0,1]:
+                    #print(x)
                     for y in [-1,0,1]:
+                        #print(y)
                         if i.eulerangles != fetchEA(j[0]+x,j[1]+y):
                             #print(fetchEA(j[0]+x,j[1]+y))
                             state_change(i,[j[0]+x,j[1]+y])
                             #print(fetchEA(j[0]+x,j[1]+y))
-                            i.updateGB()
-                            print(i.name)
-                            print(i.GB)
+                            
+                            #print(i.name)
+                            #print(i.GB)
                             #print("GB updated")
+            i.updateGB()
         m +=1 
-
+    update_display()
 
 
 for i in range(1, number_of_grains + 1):
     nuclii_x = np.random.randint(0,r-1,)
     nuclii_y =np.random.randint(0,c-1)
     obj_name = f"grain {i}"
-    new_object = grain(obj_name,fetchEA(nuclii_x,nuclii_y))
+    new_object = grain(obj_name,fetchEA(nuclii_x,nuclii_y),color= color[i])
     new_object.GB.append([nuclii_x,nuclii_y])
     grains.append(new_object)
     lattice_status[nuclii_x,nuclii_y] = new_object.color
@@ -210,7 +229,9 @@ canvas = Canvas(root, width=r*pixel_size, height=c*pixel_size)
 canvas.pack()
 
 step_button = tk.Button(root, text="Monte Carlo Step", command=monte_carlo_step)
+print_button = tk.Button(root, text= "print", command = print_euler_angles() )
 step_button.pack()
+print_button.pack()
 
 update_display()
 

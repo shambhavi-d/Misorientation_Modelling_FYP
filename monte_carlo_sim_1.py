@@ -7,6 +7,8 @@ from tkinter import Canvas
 import pandas as pd
 from main import s
 import math
+from tkinter import *
+from PIL import Image, ImageTk, EpsImagePlugin
 path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\energy_misorientation_IQ.txt"  
 
 df = pd.read_csv(path,sep='\t')
@@ -15,7 +17,7 @@ df = df.to_numpy()
 
 color =["red","blue","cyan","yellow","purple","pink","orange","green","brown","grey","black"]
 
-number_of_grains = 5
+number_of_grains = 200
 
 M_m = 10
 
@@ -82,7 +84,9 @@ class grain:
 
 
 def fetchEA(x,y):
-    return [EA[x,y,0],EA[x,y,1],EA[x,y,2]]
+    a = x%(r+1)
+    b = y%(c+1)
+    return [EA[a,b,0],EA[a,b,1],EA[a,b,2]]
 
 def mobility(misorientation):
     B = 5
@@ -96,10 +100,12 @@ def del_E(EA_M,EA_1,coords_px):  ## EA_M is the euler angles of the grain, EA_1 
     SE_f = 0
     for x in [-1,0,1]:
         for y in [-1,0,1]:
-            SE_i = SE_i + main.stored_energy(main.theta(np.matmul(main.g(EA_1[0],EA_1[1],EA_1[2]),np.linalg.inv(main.g(fetchEA(coords_px[0]+x,coords_px[1]+y)[0],fetchEA(coords_px[0]+x,coords_px[1]+y)[1],fetchEA(coords_px[0]+x,coords_px[1]+y)[2]))))) ##Might not work
+            if (coords_px[0] + x >= 97) or (coords_px[0] + y >= 97): pass
+            else:SE_i = SE_i + main.stored_energy(main.theta(np.matmul(main.g(EA_1[0],EA_1[1],EA_1[2]),np.linalg.inv(main.g(fetchEA(coords_px[0]+x,coords_px[1]+y)[0],fetchEA(coords_px[0]+x,coords_px[1]+y)[1],fetchEA(coords_px[0]+x,coords_px[1]+y)[2]))))) ##Might not work
     for x in [-1,0,1]:
         for y in [-1,0,1]:
-            SE_f = SE_f + main.stored_energy(main.theta(np.matmul(main.g(EA_M[0],EA_M[1],EA_M[2]),np.linalg.inv(main.g(fetchEA(coords_px[0]+x,coords_px[1]+y)[0],fetchEA(coords_px[0]+x,coords_px[1]+y)[1],fetchEA(coords_px[0]+x,coords_px[1]+y)[2]))))) ##Might not work
+            if (coords_px[0] + x >= 97) or (coords_px[0] + y >= 97): pass
+            else:SE_f = SE_f + main.stored_energy(main.theta(np.matmul(main.g(EA_M[0],EA_M[1],EA_M[2]),np.linalg.inv(main.g(fetchEA(coords_px[0]+x,coords_px[1]+y)[0],fetchEA(coords_px[0]+x,coords_px[1]+y)[1],fetchEA(coords_px[0]+x,coords_px[1]+y)[2]))))) ##Might not work
     
     return SE_f - SE_i
 
@@ -116,19 +122,19 @@ def probability(del_E, misorientation):
         #print("denominator: ")
         #print(M_m*main.sigma_m)
         #return (mobility(misorientation)*main.stored_energy(misorientation)*2)*(np.exp(-1*del_E))/(M_m*main.sigma_m) ## kT term not added
-        return 0.2
+        return 0.8
 
 def state_change(grain,coords_px):
     pixel_state_initial = fetchEA(coords_px[0],coords_px[1])
     x = probability(del_E(grain.eulerangles, pixel_state_initial,coords_px),np.degrees(main.theta(np.matmul(main.g(grain.eulerangles[0],grain.eulerangles[1],grain.eulerangles[2]),np.linalg.inv(main.g(pixel_state_initial[0],pixel_state_initial[1],pixel_state_initial[2]))))))
     #print(x)
     if random.uniform(0, 1) <= probability(del_E(grain.eulerangles, pixel_state_initial,coords_px),np.degrees(main.theta(np.matmul(main.g(grain.eulerangles[0],grain.eulerangles[1],grain.eulerangles[2]),np.linalg.inv(main.g(pixel_state_initial[0],pixel_state_initial[1],pixel_state_initial[2])))))):
-        EA[coords_px[0],coords_px[1],0] = grain.eulerangles[0]
-        EA[coords_px[0],coords_px[1],1] = grain.eulerangles[1]
-        EA[coords_px[0],coords_px[1],2] = grain.eulerangles[2]
-        grain.newgrainspx.append(coords_px)
+        EA[coords_px[0]%(r+1),coords_px[1]%(c+1),0] = grain.eulerangles[0] # Mod to wrap around
+        EA[coords_px[0]%(r+1),coords_px[1]%(c+1),1] = grain.eulerangles[1]
+        EA[coords_px[0]%(r+1),coords_px[1]%(c+1),2] = grain.eulerangles[2]
+        grain.newgrainspx.append([coords_px[0]%(r+1),coords_px[1]%(c+1)])
 
-        lattice_status[coords_px[0],coords_px[1]] = grain.color
+        lattice_status[coords_px[0]%(r+1),coords_px[1]%(c+1)] = grain.color  ## Mod to wrap around 
     else: pass    
 
 
@@ -142,7 +148,40 @@ def print_euler_angles():
                 f.write("%s\t%s\t%s\t%s\t%s\n"%(x*stepsize_x, y*stepsize_y, EA[x, y, 0], EA[x, y, 1], EA[x, y, 2]))
 
 
+def generate_random_color():
+    # Generate random RGB values
+    red = random.randint(0, 255)
+    green = random.randint(0, 255)
+    blue = random.randint(0, 255)
 
+    # Convert to hexadecimal and format as a color string
+    color_string = "#{:02X}{:02X}{:02X}".format(red, green, blue)
+
+    return color_string
+
+def save_canvas_image():
+    # Create a PostScript file from the canvas
+    canvas.postscript(file="output_image.eps", colormode='color')
+
+    # Use Pillow (PIL) to convert the PostScript file to an image (e.g., PNG)
+    EpsImagePlugin.gs_windows_binary = r'C:\Program Files (x86)\gs\gs10.02.1\bin\gswin32c.exe'  # Set the Ghostscript executable path
+    img = Image.open("output_image.eps")
+    img.save(f"sim_output_n={number_of_grains}.png", format="png")
+    img.close()
+
+
+# def save_canvas_image():
+#     # Get the coordinates and dimensions of the canvas
+#     x = root.winfo_rootx() + canvas.winfo_x()
+#     y = root.winfo_rooty() + canvas.winfo_y()
+#     width = canvas.winfo_width()
+#     height = canvas.winfo_height()
+
+#     # Capture the content of the canvas as an image
+#     image = ImageGrab.grab(bbox=(x, y, x + width, y + height))
+
+#     # Save the image to a file (e.g., PNG)
+#     image.save(f"sim_output_n={number_of_grains}.png", format="png")
 #################################################################################################################################################################
 # def update_display():
 #     canvas.delete("all")
@@ -177,26 +216,27 @@ grains = []
 
 
 
-def monte_carlo_step(n=3):
+def monte_carlo_step(n=10):
     m=0
+
     while m < n:
-        
         for i in grains:
-            print("outerloop fault")
+            print(i.name)
             for j in i.GB:
-                print("innerfault")
+                print(j)
                 for x in [-1,0,1]:
                     #print(x)
                     for y in [-1,0,1]:
                         #print(y)
-                        if i.eulerangles != fetchEA(j[0]+x,j[1]+y):
-                            #print(fetchEA(j[0]+x,j[1]+y))
-                            state_change(i,[j[0]+x,j[1]+y])
-                            #print(fetchEA(j[0]+x,j[1]+y))
+                        if lattice_status[(j[0]+x)%(r+1),(j[1]+y)%(c+1)] == 0:
+                            if i.eulerangles != fetchEA(j[0]+x,j[1]+y):
+                                #print(fetchEA(j[0]+x,j[1]+y))
+                                state_change(i,[j[0]+x,j[1]+y])
+                                #print(fetchEA(j[0]+x,j[1]+y))
                             
-                            #print(i.name)
-                            #print(i.GB)
-                            #print("GB updated")
+                                #print(i.name)
+                                #print(i.GB)
+                                #print("GB updated")
             i.updateGB()
         m +=1 
     update_display()
@@ -206,7 +246,7 @@ for i in range(1, number_of_grains + 1):
     nuclii_x = np.random.randint(0,r-1,)
     nuclii_y =np.random.randint(0,c-1)
     obj_name = f"grain {i}"
-    new_object = grain(obj_name,fetchEA(nuclii_x,nuclii_y),color= color[i])
+    new_object = grain(obj_name,fetchEA(nuclii_x,nuclii_y),color= generate_random_color())
     new_object.GB.append([nuclii_x,nuclii_y])
     grains.append(new_object)
     lattice_status[nuclii_x,nuclii_y] = new_object.color
@@ -214,8 +254,8 @@ for i in range(1, number_of_grains + 1):
 # print(grains[0].newgrainspx)
 # print(grains[0].eulerangles)
  
-print(grains)
-print(grains[0].GB)
+#print(grains)
+#print(grains[0].GB)
 # print(lattice_status[grains[0].GB[0][0],grains[0].GB[0][1]])
 # print(lattice_status[grains[0].GB[0][0]+1,grains[0].GB[0][1]+1])
 
@@ -229,9 +269,11 @@ canvas = Canvas(root, width=r*pixel_size, height=c*pixel_size)
 canvas.pack()
 
 step_button = tk.Button(root, text="Monte Carlo Step", command=monte_carlo_step)
-print_button = tk.Button(root, text= "print", command = print_euler_angles() )
-step_button.pack()
-print_button.pack()
+print_button = tk.Button(root, text= "print Euler angles", command = print_euler_angles)
+save_button = tk.Button(root, text= "Save image", command = save_canvas_image)
+step_button.pack(side=tk.LEFT, padx=5)
+print_button.pack(side=tk.LEFT, padx=5)
+save_button.pack(side=tk.LEFT, padx=5)
 
 update_display()
 

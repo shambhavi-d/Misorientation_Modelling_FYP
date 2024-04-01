@@ -17,7 +17,7 @@ df = df.to_numpy()
 
 color =["red","blue","cyan","yellow","purple","pink","orange","green","brown","grey","black"]
 
-number_of_grains = 200
+number_of_grains = 5
 
 M_m = 10
 
@@ -139,7 +139,7 @@ def state_change(grain,coords_px):
 
 
 def print_euler_angles():
-    with open("Sim1_results.txt", "w") as f:
+    with open(f"sim_output_n={number_of_grains}.txt", "w") as f:
         f.write("X\tY\tphi1\tphi\tphi2\n")
 
     for x in range(0, r+1):

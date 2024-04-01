@@ -140,12 +140,12 @@ def state_change(grain,coords_px):
 
 def print_euler_angles():
     with open(f"sim_output_n={number_of_grains}.txt", "w") as f:
-        f.write("X\tY\tphi1\tphi\tphi2\n")
+        f.write("phi1,phi,phi2,X,Y\,IQn")
 
     for x in range(0, r+1):
         for y in range(0, c+1):
-            with open("Sim1_results.txt", "a") as f:
-                f.write("%s\t%s\t%s\t%s\t%s\n"%(x*stepsize_x, y*stepsize_y, EA[x, y, 0], EA[x, y, 1], EA[x, y, 2]))
+            with open(f"sim_output_n={number_of_grains}.txt", "a") as f:
+                f.write("%s,%s,%s,%s,%s,%s\n"%(EA[x, y, 0], EA[x, y, 1], EA[x, y, 2],x*stepsize_x, y*stepsize_y,60))
 
 
 def generate_random_color():

@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 
 ######################## READING THE DATAFILE ###########################
 ## The first column of the data file will be read as Phi_1, 2nd- Phi, 3rd phi_2, 4th - x, 5th - y, 6and 7th as CI (confidance index)
-path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\HR_complete.xlsx"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
+path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\sim_output_n=5.txt"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
 #print(path)
-df = pd.read_excel(path)
-#print(df)
+df = pd.read_csv(path)
+print(df)
 df = df.to_numpy()    ##We use numpy arrays since they are easier to manipulate
 
 ##Calculating step size
@@ -30,7 +30,7 @@ df[:,3] = (df[:, 3] / (stepsize_x)).astype(int)
 df[:,4] = (df[:, 4] / (stepsize_y)).astype(int)
 
 r,c = int(np.max(df[:,3])),int(np.max(df[:,4])) ##Dimensions of the datafile for furthur use
-
+print(r,c)
 ######################## GLOBAL VARIABLES ###############################
 
 theta_m = 15 # 15 degree is the critical value for misorientation
@@ -45,11 +45,11 @@ for i in df:
     s[int(i[3])][int(i[4])][0] = i[0] 
     s[int(i[3])][int(i[4])][1] = i[1]
     s[int(i[3])][int(i[4])][2] = i[2]
-    s[int(i[3])][int(i[4])][3] = i[6]
+    s[int(i[3])][int(i[4])][3] = 1
     
 
 G = np.zeros((r + 1, c + 1, 2, 3, 3)) ## Like above in a r+1 x c+1 matrix now we are storing g and g^-1. We do this after caculating g and g^-1
-
+######################### IMAGE QUALITY ############################################
 IQ = np.zeros((r+1,c+1,1))  ## Image quality
 
 max = 0
@@ -62,6 +62,8 @@ for i in df:
 
 for i in df:
     IQ[int(i[3])][int(i[4])][0] = 100*(i[5] - min)/(max-min)
+
+####################################
 
 ####################### FUNCTIONS #######################################
 

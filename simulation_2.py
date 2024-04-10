@@ -9,17 +9,13 @@ from main import s
 import math
 from tkinter import *
 from PIL import Image, ImageTk, EpsImagePlugin
-path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\energy_misorientation_IQ.txt"  
 
-df = pd.read_csv(path,sep='\t')
+
+path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\energy_misorientation_IQ.txt"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
+
+df = pd.read_csv(path)
 
 df = df.to_numpy()
-
-color =["red","blue","cyan","yellow","purple","pink","orange","green","brown","grey","black"]
-
-number_of_grains = 5
-
-M_m = 10
 
 for i in range(0,len(df[:,0])):
     if df[i+1,0] - df[i,0] != 0:
@@ -36,6 +32,27 @@ df[:,0 ] = (df[:, 0] / (stepsize_x)).astype(int)
 df[:,1] = (df[:, 1] / (stepsize_y)).astype(int)
 
 r,c = int(np.max(df[:,0])),int(np.max(df[:,1]))  ##r = x , c= y
+
+init_energy_array = df[:,5]
+
+sigma_energy = np.std(init_energy_array)
+mean_energy = np.mean(init_energy_array)
+max_energy = np.max(init_energy_array)
+
+print(sigma_energy,mean_energy,max_energy)
+
+nucleation_site = []
+
+for i in df:
+    if i[5] >= (mean_energy + 2*sigma_energy):
+        nucleation_site.append([i[0],i[1]])
+        
+
+number_of_grains = 50
+
+M_m = 10
+
+
 
 EA = np.zeros((r+1,c+1,4))
 EA = main.s
@@ -243,8 +260,9 @@ def monte_carlo_step(n=20):
 
 
 for i in range(1, number_of_grains + 1):
-    nuclii_x = np.random.randint(0,r-1,)
-    nuclii_y =np.random.randint(0,c-1)
+    a= np.random.randint(0,len(nucleation_site))
+    nuclii_x = int(nucleation_site[a][0])
+    nuclii_y = int(nucleation_site[a][1])
     obj_name = f"grain {i}"
     new_object = grain(obj_name,fetchEA(nuclii_x,nuclii_y),color= generate_random_color())
     new_object.GB.append([nuclii_x,nuclii_y])
@@ -320,4 +338,3 @@ root.mainloop()
 #     #get random nuclii
 #     #grow the nuclii to a certain radii
 #     # keep growing the nuclii   
-

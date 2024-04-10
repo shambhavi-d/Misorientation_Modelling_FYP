@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 
 ######################## READING THE DATAFILE ###########################
 ## The first column of the data file will be read as Phi_1, 2nd- Phi, 3rd phi_2, 4th - x, 5th - y, 6and 7th as CI (confidance index)
-path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\sim_output_n=5.txt"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
+path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\HR_complete.xlsx"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
 #print(path)
-df = pd.read_csv(path)
+df = pd.read_excel(path)
 print(df)
 df = df.to_numpy()    ##We use numpy arrays since they are easier to manipulate
 
@@ -30,7 +30,7 @@ df[:,3] = (df[:, 3] / (stepsize_x)).astype(int)
 df[:,4] = (df[:, 4] / (stepsize_y)).astype(int)
 
 r,c = int(np.max(df[:,3])),int(np.max(df[:,4])) ##Dimensions of the datafile for furthur use
-print(r,c)
+#print(r,c)
 ######################## GLOBAL VARIABLES ###############################
 
 theta_m = 15 # 15 degree is the critical value for misorientation
@@ -137,7 +137,7 @@ for x in range(0,r+1):
 
 if __name__ == "__main__":
         f = open("energy_misorientation_IQ.txt", "w" )
-        f.write("X\tY\ttheta\tKAM\tIQ\tSE\n")
+        f.write("X,Y,theta,KAM,IQ,SE\n")
         stored_energy_values = np.zeros((r + 1, c + 1, 1))
         average_misorientation = np.zeros((r + 1, c + 1, 1))
         kam = np.zeros((r + 1, c + 1, 1))
@@ -168,7 +168,7 @@ if __name__ == "__main__":
                 else: kam[x,y,0] = 0
         for x in range(0,r+1):
              for y in range(0,c+1):
-                  f.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(x*stepsize_x,y*stepsize_y,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
+                  f.write("%s,%s,%s,%s,%s,%s\n"%(x*stepsize_x,y*stepsize_y,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
         #### PLOTTING ####
         fig, ax = plt.subplots()
         im = ax.imshow(stored_energy_values, cmap='viridis')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html

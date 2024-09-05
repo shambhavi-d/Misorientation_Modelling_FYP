@@ -48,7 +48,7 @@ for i in df:
         nucleation_site.append([i[0],i[1]])
         
 
-number_of_grains = 50
+number_of_grains = 100
 
 M_m = 10
 
@@ -129,23 +129,22 @@ def del_E(EA_M,EA_1,coords_px):  ## EA_M is the euler angles of the grain, EA_1 
 
 def probability(del_E, misorientation):
     if del_E <= 0 :
-        #print('del_E is negative')
+        # print('del_E is negative')
         #print(del_E)
-        #print("denominator: ")
-        #print(M_m*main.sigma_m)
-        #return (mobility(misorientation)*main.stored_energy(misorientation)*2)/(M_m*main.sigma_m) ##function stored energy halves the value
-        return 0.8
+        #print((mobility(misorientation)*main.stored_energy(misorientation)*2)/(M_m*main.sigma_m))
+        return (mobility(misorientation)*main.stored_energy(misorientation)*2)/(M_m*main.sigma_m) ##function stored energy halves the value
+        #return 0.8
     else:
         #print("denominator: ")
         #print(M_m*main.sigma_m)
-        #return (mobility(misorientation)*main.stored_energy(misorientation)*2)*(np.exp(-1*del_E))/(M_m*main.sigma_m) ## kT term not added
-        return 0.8
+        return (mobility(misorientation)*main.stored_energy(misorientation)*2)*(np.exp(-1*del_E))/(M_m*main.sigma_m) ## kT term not added
+        #return 0.8
 
 def state_change(grain,coords_px):
     pixel_state_initial = fetchEA(coords_px[0],coords_px[1])
     x = probability(del_E(grain.eulerangles, pixel_state_initial,coords_px),np.degrees(main.theta(np.matmul(main.g(grain.eulerangles[0],grain.eulerangles[1],grain.eulerangles[2]),np.linalg.inv(main.g(pixel_state_initial[0],pixel_state_initial[1],pixel_state_initial[2]))))))
     #print(x)
-    if random.uniform(0, 1) <= probability(del_E(grain.eulerangles, pixel_state_initial,coords_px),np.degrees(main.theta(np.matmul(main.g(grain.eulerangles[0],grain.eulerangles[1],grain.eulerangles[2]),np.linalg.inv(main.g(pixel_state_initial[0],pixel_state_initial[1],pixel_state_initial[2])))))):
+    if random.uniform(0, 1) <= x:
         EA[coords_px[0]%(r+1),coords_px[1]%(c+1),0] = grain.eulerangles[0] # Mod to wrap around
         EA[coords_px[0]%(r+1),coords_px[1]%(c+1),1] = grain.eulerangles[1]
         EA[coords_px[0]%(r+1),coords_px[1]%(c+1),2] = grain.eulerangles[2]
@@ -157,7 +156,7 @@ def state_change(grain,coords_px):
 
 def print_euler_angles():
     with open(f"sim_output_n={number_of_grains}.txt", "w") as f:
-        f.write("phi1,phi,phi2,X,Y\,IQn")
+        f.write("phi1,phi,phi2,X,Y,IQ\n")
 
     for x in range(0, r+1):
         for y in range(0, c+1):
@@ -183,7 +182,7 @@ def save_canvas_image():
     # Use Pillow (PIL) to convert the PostScript file to an image (e.g., PNG)
     EpsImagePlugin.gs_windows_binary = r'C:\Program Files (x86)\gs\gs10.02.1\bin\gswin32c.exe'  # Set the Ghostscript executable path
     img = Image.open("output_image.eps")
-    img.save(f"sim_output_n={number_of_grains}.png", format="png")
+    img.save(f"sim_output2_n={number_of_grains}.png", format="png")
     img.close()
 
 
@@ -233,7 +232,7 @@ grains = []
 
 
 
-def monte_carlo_step(n=20):
+def monte_carlo_step(n=30):
     m=0
 
     while m < n:

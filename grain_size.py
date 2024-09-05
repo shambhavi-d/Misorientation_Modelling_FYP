@@ -19,8 +19,11 @@ def average_grain_x(n1):
                 i+=1
         #print(y)        
         #print(i)          
-        #print(main.r*main.stepsize_x/i)        
-        subgrains.append(main.r*main.stepsize_x/i)
+        #print(main.r*main.stepsize_x/i) 
+        if i == 0:
+            subgrains.append(main.r*main.stepsize_x)
+        else:    
+            subgrains.append(main.r*main.stepsize_x/i)
     
     #print(subgrains)
     #print(main.r*main.stepsize_x)    
@@ -39,7 +42,9 @@ def average_grain_y(n2):
         #print(x)        
         #print(i)        
         #print(main.r*main.stepsize_y/i) 
-        subgrains.append(main.c*main.stepsize_y/i)
+        if i == 0:
+            subgrains.append(main.c*main.stepsize_y)
+        else: subgrains.append(main.c*main.stepsize_y/i)
     #print(subgrains)    
     #print(main.r*main.stepsize_y)  
     return sum(subgrains)/len(subgrains)

@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 
 ######################## READING THE DATAFILE ###########################
 ## The first column of the data file will be read as Phi_1, 2nd- Phi, 3rd phi_2, 4th - x, 5th - y, 6and 7th as CI (confidance index)
-path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\HR_complete.xlsx"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
+path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\sim_output_n=100.txt"  #D:\Python Codes\Recrystallization FYP\HR.xlsx
 #print(path)
-df = pd.read_excel(path)
+df = pd.read_csv(path)
 print(df)
 df = df.to_numpy()    ##We use numpy arrays since they are easier to manipulate
 
@@ -168,10 +168,13 @@ if __name__ == "__main__":
                 else: kam[x,y,0] = 0
         for x in range(0,r+1):
              for y in range(0,c+1):
-                  f.write("%s,%s,%s,%s,%s,%s\n"%(x*stepsize_x,y*stepsize_y,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
+                  #f.write("%s,%s,%s,%s,%s,%s\n"%(x*stepsize_x,y*stepsize_y,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
+                  f.write("%s,%s,%s,%s,%s,%s\n"%(x,y,average_misorientation[x,y,0],kam[x,y,0],IQ[x,y,0],stored_energy_values[x,y,0]))
         #### PLOTTING ####
         fig, ax = plt.subplots()
         im = ax.imshow(stored_energy_values, cmap='viridis')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html
+        aspect_ratio = float(len(stored_energy_values[0])) / len(stored_energy_values)
+        ax.set_aspect(aspect_ratio*5)
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('Stored Energy')           # Label #Title can be added #plt.title('matplotlib.pyplot.imshow() Stored energy', fontweight ="bold")  
         plt.savefig("stored_energy", dpi=1200)
@@ -180,13 +183,23 @@ if __name__ == "__main__":
 
         fig, ax = plt.subplots()
         im = ax.imshow(average_misorientation, cmap='plasma')
+        ax.set_aspect(aspect_ratio*5)
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('Average Misorientation')
         plt.savefig("Misorientation", dpi=1200)
 
         fig, ax = plt.subplots()
         im = ax.imshow(kam, cmap='seismic')
+        ax.set_aspect(aspect_ratio*5)
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('KAM')
         plt.savefig("KAM", dpi=1200)
+        plt.show()
+
+        fig, ax = plt.subplots()
+        im = ax.imshow(IQ, cmap='seismic')     # (fist arg = data , second arg = colormap style)  more at https://matplotlib.org/stable/users/explain/colors/colormaps.html
+        aspect_ratio = float(len(stored_energy_values[0])) / len(stored_energy_values)
+        ax.set_aspect(aspect_ratio*5)
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('Image Quality')           # Label #Title can be added #plt.title('matplotlib.pyplot.imshow() Stored energy', fontweight ="bold")  
         plt.show()

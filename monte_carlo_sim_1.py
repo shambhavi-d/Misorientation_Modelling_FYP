@@ -11,7 +11,7 @@ from tkinter import *
 from PIL import Image, ImageTk, EpsImagePlugin
 path =  r"D:\\Recrystallization final year project\\Recrys_FYP_2023-24\\energy_misorientation_IQ.txt"  
 
-df = pd.read_csv(path,sep='\t')
+df = pd.read_csv(path)
 
 df = df.to_numpy()
 
@@ -22,12 +22,12 @@ number_of_grains = 5
 M_m = 10
 
 for i in range(0,len(df[:,0])):
-    if df[i+1,0] - df[i,0] != 0:
+    if (df[i+1,0]) - (df[i,0]) != 0:
         stepsize_x = df[i+1,0] - df[i,0]
         break
     
 for i in range(0,len(df[:,1])):
-    if df[i+1,1] - df[i,1] != 0:
+    if (df[i+1,1]) - (df[i,1]) != 0:
         stepsize_y = df[i+1,1] - df[i,1]
         break
 print(stepsize_x,stepsize_y)
@@ -216,7 +216,7 @@ grains = []
 
 
 
-def monte_carlo_step(n=20):
+def monte_carlo_step(n=5):
     m=0
 
     while m < n:
